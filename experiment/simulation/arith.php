@@ -1,6 +1,7 @@
 <?php
 session_start();
-
+$_GET["exp"] = "arith";
+$_SESSION["piping"] = 1;
 if(isset($_GET["source"]) && isset($_GET["id"])) {
 $_SESSION["currentS"]=$_GET["source"];
 $_SESSION["id"]=$_GET["id"]; 
