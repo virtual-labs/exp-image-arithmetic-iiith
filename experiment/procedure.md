@@ -12,21 +12,22 @@ The experiment is design to understand and learn the image arithmetic concepts. 
 
 **Steps to run the experiments**
 
-1. Select image from the mosaic using 'select imag' option
+1. Select image from the mosaic using 'select image' option
 
-   1. Select region of the image to load it in the input image panel
+   - Select region of the image to load it in the input image panel
 
-   2. Select secondary image by choosing either of the 'dull' , 'bright' or 'gradient' images
+   - Select secondary image by choosing either of the 'dull' , 'bright' or 'gradient' images
 
- 2. Select one option from 'addition', 'subtraction', 'difference', 'multiplication' and 'division'
+2. Select one option from 'addition', 'subtraction', 'difference', 'multiplication' and 'division'
 
-   1. Select the one option from 'clipping' and 'auto-scaling'
+   - Select the one option from 'clipping' and 'auto-scaling'
 
 3. Select run option to perform the operations
 
-   1. Output result will be displayed in the output panel
+   - Output result will be displayed in the output panel
 
-   2. Along with intermediate results
+   - Along with intermediate results
+
 
 Interesting Observations
 
