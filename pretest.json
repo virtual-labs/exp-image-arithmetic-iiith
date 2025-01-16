@@ -1,0 +1,29 @@
+[
+{"question":"1. How many bits are required to add three 8 bits gray-scale images without losing precision in the data?",
+"answers":{
+            "a":"9",
+            "b":"10",
+            "c":"11",
+            "d":"8"
+          },
+"correctAnswer":"a"},
+
+{"question":"2. You have added two 8-bit images. To maintain the result in 8 bits which of the following would you perform?",
+"answers":{
+            "a":"Scale down the intensity values of two images by half before performing addition",
+            "b":"Set the overflowing pixel value to the maximum",
+            "c":"After performing addition, scale down the output image intensities values by half",
+            "d":"All of the above"
+          },
+"correctAnswer":"c"}, 
+
+{"question":"3. After performing division operation, to display the quotient image which operation would you perform?",
+"answers":{
+            "a":"Clipping",
+            "b":"Auto Scaling",
+            "c":"Both",
+            "d":"None"
+          },
+"correctAnswer":"a"}
+
+]
