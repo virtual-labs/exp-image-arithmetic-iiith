@@ -1,29 +1,158 @@
-[
-{"question":"1. How many bits are required to add three 8 bits gray-scale images without losing precision in the data?",
-"answers":{
-            "a":"9",
-            "b":"10",
-            "c":"11",
-            "d":"8"
-          },
-"correctAnswer":"a"},
-
-{"question":"2. You have added two 8-bit images. To maintain the result in 8 bits which of the following would you perform?",
-"answers":{
-            "a":"Scale down the intensity values of two images by half before performing addition",
-            "b":"Set the overflowing pixel value to the maximum",
-            "c":"After performing addition, scale down the output image intensities values by half",
-            "d":"All of the above"
-          },
-"correctAnswer":"c"}, 
-
-{"question":"3. After performing division operation, to display the quotient image which operation would you perform?",
-"answers":{
-            "a":"Clipping",
-            "b":"Auto Scaling",
-            "c":"Both",
-            "d":"None"
-          },
-"correctAnswer":"a"}
-
-]
+{
+  "version": 2.0,
+  "questions": [
+    {
+      "question": "1. In image arithmetic, how are the corresponding pixels of two images combined during an arithmetic operation?",
+      "answers": {
+        "a": "By performing the operation pixel-wise",
+        "b": "By combining only the boundary pixels",
+        "c": "By averaging the image dimensions",
+        "d": "By changing the image resolution"
+      },
+      "correctAnswer": "a",
+      "explanations": {
+        "a": "Correct. Image arithmetic operations are performed independently on corresponding pixels of the input images.",
+        "b": "Incorrect. Image arithmetic is not limited to boundary pixels.",
+        "c": "Incorrect. Image arithmetic operates on pixel values and does not involve averaging image dimensions.",
+        "d": "Incorrect. An arithmetic operation on pixel values does not by itself change the image resolution."
+      },
+      "difficulty": "beginner"
+    },
+    {
+      "question": "2. What is the valid pixel-value range of an 8-bit grayscale image?",
+      "answers": {
+        "a": "1 to 255",
+        "b": "0 to 255",
+        "c": "0 to 256",
+        "d": "-255 to 255"
+      },
+      "correctAnswer": "b",
+      "explanations": {
+        "b": "Correct. An 8-bit image can represent pixel values from 0 through 2^8 - 1, which is 255.",
+        "a": "Incorrect. The value 0 is also a valid pixel value in an 8-bit image.",
+        "c": "Incorrect. The maximum value of an 8-bit image is 255, not 256.",
+        "d": "Incorrect. Negative values are not part of the standard 8-bit image range."
+      },
+      "difficulty": "beginner"
+    },
+    {
+      "question": "3. Which image arithmetic operation always produces a non-negative result when applied to two image pixel values?",
+      "answers": {
+        "a": "Subtraction",
+        "b": "Addition",
+        "c": "Difference",
+        "d": "Division"
+      },
+      "correctAnswer": "c",
+      "explanations": {
+        "c": "Correct. The difference operation uses the absolute value, |p - q|, so its result cannot be negative.",
+        "a": "Incorrect. Subtraction can produce a negative value when the second pixel value is larger than the first.",
+        "b": "Incorrect. Addition produces a non-negative result for non-negative input pixels, but it is not the operation specifically defined using the absolute difference.",
+        "d": "Incorrect. Division does not use an absolute difference and its result depends on the numerator and denominator."
+      },
+      "difficulty": "beginner"
+    },
+    {
+      "question": "4. Two 8-bit images are added pixel-wise. What is the maximum possible value of a resulting pixel before any range adjustment is performed?",
+      "answers": {
+        "a": "255",
+        "b": "256",
+        "c": "510",
+        "d": "65025"
+      },
+      "correctAnswer": "c",
+      "explanations": {
+        "c": "Correct. The maximum pixel value in each 8-bit image is 255, so the maximum sum is 255 + 255 = 510.",
+        "a": "Incorrect. This is the maximum value of an individual 8-bit input pixel, not the maximum sum of two such pixels.",
+        "b": "Incorrect. Adding two 8-bit pixel values can produce values considerably greater than 256.",
+        "d": "Incorrect. 65025 is the maximum product of two 255-valued pixels, not their maximum sum."
+      },
+      "difficulty": "intermediate"
+    },
+    {
+      "question": "5. What problem occurs when an arithmetic operation produces a pixel value greater than 255 for an 8-bit output image?",
+      "answers": {
+        "a": "Underflow",
+        "b": "Overflow",
+        "c": "Image segmentation",
+        "d": "Resolution loss"
+      },
+      "correctAnswer": "b",
+      "explanations": {
+        "b": "Correct. An overflow occurs when an arithmetic operation produces a value greater than the maximum representable value of the output image.",
+        "a": "Incorrect. Underflow refers to a value falling below the minimum allowed pixel value.",
+        "c": "Incorrect. Image segmentation is a separate image-processing task and does not describe a value exceeding the valid range.",
+        "d": "Incorrect. A pixel value exceeding the valid range is a range problem, not a change in image resolution."
+      },
+      "difficulty": "intermediate"
+    },
+    {
+      "question": "6. Which method maps the minimum and maximum values of an arithmetic result to 0 and 255, respectively, for an 8-bit output image?",
+      "answers": {
+        "a": "Subtraction",
+        "b": "Clipping",
+        "c": "Difference",
+        "d": "Auto-scaling"
+      },
+      "correctAnswer": "d",
+      "explanations": {
+        "d": "Correct. Auto-scaling remaps the range of the arithmetic result so that its minimum and maximum values correspond to 0 and 255.",
+        "a": "Incorrect. Subtraction is an arithmetic operation between image pixel values, not a method for remapping the output range.",
+        "b": "Incorrect. Clipping limits values to the valid range but does not remap the entire range between its minimum and maximum values.",
+        "c": "Incorrect. Difference is an arithmetic operation based on the absolute difference between corresponding pixels."
+      },
+      "difficulty": "intermediate"
+    },
+    {
+      "question": "7. Two 8-bit images are multiplied pixel-wise. What is the maximum possible value of a resulting pixel before range adjustment?",
+      "answers": {
+        "a": "255",
+        "b": "510",
+        "c": "65025",
+        "d": "65535"
+      },
+      "correctAnswer": "c",
+      "explanations": {
+        "c": "Correct. The maximum input pixel value is 255, so the maximum product is 255 × 255 = 65025.",
+        "a": "Incorrect. This is the maximum value of an individual 8-bit input pixel, not the maximum product.",
+        "b": "Incorrect. 510 is the maximum sum obtained by adding two maximum-valued 8-bit pixels.",
+        "d": "Incorrect. This value is not the maximum product of two 8-bit pixel values."
+      },
+      "difficulty": "advanced"
+    },
+    {
+      "question": "8. Consider two 8-bit images A and B. If A(x,y) = 40 and B(x,y) = 100, what is the output pixel value at (x,y) when the difference operation is applied?",
+      "answers": {
+        "a": "60",
+        "b": "-60",
+        "c": "140",
+        "d": "250"
+      },
+      "correctAnswer": "a",
+      "explanations": {
+        "a": "Correct. The difference operation is |A(x,y) - B(x,y)| = |40 - 100| = 60.",
+        "b": "Incorrect. The difference operation uses the absolute value, so its result is not negative.",
+        "c": "Incorrect. 140 is the result of adding the two pixel values, not taking their absolute difference.",
+        "d": "Incorrect. This value does not result from applying the difference operation to the given pixel values."
+      },
+      "difficulty": "advanced"
+    },
+    {
+      "question": "9. Why is a final range-adjustment step often required after performing arithmetic operations on 8-bit images?",
+      "answers": {
+        "a": "Because arithmetic operations always change the image dimensions",
+        "b": "Because the output may contain values outside the valid 8-bit range",
+        "c": "Because arithmetic operations cannot be performed pixel-wise",
+        "d": "Because all arithmetic operations produce only negative values"
+      },
+      "correctAnswer": "b",
+      "explanations": {
+        "b": "Correct. Arithmetic operations such as addition and multiplication can produce values outside the 0 to 255 range required for an 8-bit image.",
+        "a": "Incorrect. Arithmetic operations on corresponding pixels do not inherently change the image dimensions.",
+        "c": "Incorrect. Image arithmetic is specifically performed pixel-wise on corresponding pixels.",
+        "d": "Incorrect. Arithmetic operations can produce positive, zero, or negative values depending on the operation and input values."
+      },
+      "difficulty": "advanced"
+    }
+  ]
+}
