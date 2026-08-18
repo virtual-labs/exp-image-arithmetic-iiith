@@ -34,6 +34,24 @@ can get more information by googling SEO or visiting the psd2css Online forums. 
       content="psd2css Online - Dynamic Web Pages from your Photoshop Design in seconds"
     />
 
+    <script type="text/javascript">
+      (function () {
+        var isAssessMode = /(?:^|[?&])assess=/.test(window.location.search);
+        if (isAssessMode) {
+          document.documentElement.className += " assess-mode";
+        }
+      })();
+    </script>
+
+    <style type="text/css">
+      #Mosaic {
+        display: none;
+      }
+      html.assess-mode #Mosaic {
+        display: block;
+      }
+    </style>
+
     <!-- The CSS Reset from Eric Meyers -->
     <!-- <link rel="stylesheet" type="text/css" href="cssreset.css" media="screen" /> -->
 
@@ -87,17 +105,71 @@ at http://jquery.com
     <!--for COntent Slider - Jquery Slider/-->
     <link rel="stylesheet" type="text/css" href="css/jquery-slider.css" />
 
-    <!-- opencv.js  -->
+    <!-- OpenCV.js loaded from a valid CDN build -->
     <script
-      async
-      src="https://docs.opencv.org/4.10.0/opencv.js"
+      src="https://docs.opencv.org/4.x/opencv.js"
       type="text/javascript"
+      onerror="window.__opencvLoadFailed = true; console.error('[arith] Failed to load OpenCV from docs.opencv.org/4.x/opencv.js');"
     ></script>
 
     <script type="text/javascript">
       var inputMosaic = null;
       var croppedImage = null;
       var processedImage = null;
+      var uiInitialized = false;
+
+      function logDebug(tag, payload) {
+        if (window.console && console.log) {
+          if (payload !== undefined) {
+            console.log("[arith] " + tag, payload);
+          } else {
+            console.log("[arith] " + tag);
+          }
+        }
+      }
+
+      function logError(tag, payload) {
+        if (window.console && console.error) {
+          if (payload !== undefined) {
+            console.error("[arith] " + tag, payload);
+          } else {
+            console.error("[arith] " + tag);
+          }
+        }
+      }
+
+      function isCvReady() {
+        return !!(window.cv && typeof cv.Mat === "function");
+      }
+
+      function ensureOpenCvLoaded() {
+        if (isCvReady()) {
+          return;
+        }
+
+        var existing = document.getElementById("opencv-fallback");
+        if (existing) {
+          return;
+        }
+
+        logDebug("Trying OpenCV fallback loader");
+
+        var fallback = document.createElement("script");
+        fallback.id = "opencv-fallback";
+        fallback.type = "text/javascript";
+        fallback.src = "https://cdn.jsdelivr.net/npm/opencv.js@1.2.1/opencv.js";
+        fallback.onload = function () {
+          logDebug("OpenCV fallback script loaded");
+          if (isCvReady()) {
+            onOpenCvReady();
+          }
+        };
+        fallback.onerror = function () {
+          logError("OpenCV fallback failed to load");
+        };
+
+        document.head.appendChild(fallback);
+      }
 
       function blinker(i) {
         if (buttId != "cancel" && i > 0) {
@@ -110,26 +182,39 @@ at http://jquery.com
         switch (state) {
           case 0:
             $("#nextBox").html(
-              "Start the Experiment by clicking on 'Select Image' and selecting an Input Image from the Mosaic"
+              "Start the Experiment by clicking on 'Select Image' and selecting an Input Image from the Mosaic",
+              "Start the Experiment by clicking on 'Select Image' and selecting an Input Image from the Mosaic",
             );
             buttId = "button1";
             blinker(10);
             break;
           case 1:
             if (assess) {
-              loadImage("images/assess/arith1_1.png").then((cImage) => {
-                croppedImage = cImage;
-              });
+              if (isCvReady()) {
+                loadImage("images/assess/arith1_1.png")
+                  .then((cImage) => {
+                    croppedImage = cImage;
+                  })
+                  .catch((err) => {
+                    logError("set_state(1): assess image load failed", err);
+                  });
+              } else {
+                logDebug(
+                  "set_state(1): OpenCV not ready yet for assess preload",
+                );
+              }
             }
             $("#nextBox").html(
-              "Select the secondary image, select appropriate parameters and click on 'Run'."
+              "Select the secondary image, select appropriate parameters and click on 'Run'.",
+              "Select the secondary image, select appropriate parameters and click on 'Run'.",
             );
             buttId = "button2";
             blinker(10);
             break;
           case 2:
             $("#nextBox").html(
-              "Observe the result and try different operations with different secondary Images."
+              "Observe the result and try different operations with different secondary Images.",
+              "Observe the result and try different operations with different secondary Images.",
             );
             break;
         }
@@ -137,39 +222,69 @@ at http://jquery.com
       }
 
       function toggleMosaic() {
-        var ias = $("#Mosaic").imgAreaSelect({ instance: true });
+        var ias = getMosaicIasInstance();
+        if (!ias) {
+          logError("toggleMosaic: imgAreaSelect instance not found");
+          return;
+        }
+        logDebug("toggleMosaic", {
+          mosaicVisible: $("#Mosaic").is(":visible"),
+        });
         if ($("#Mosaic").is(":visible")) {
-          ias.setOptions({ hide: true });
-          $("#Mosaic").hide("slow");
+          ias.setOptions({ hide: true, disable: true });
+          $("#Mosaic").hide();
+          ias.update();
         } else {
-          $("#Mosaic").show("slow", function () {
-            ias.setOptions({ show: true });
-            ias.update();
-          });
+          $("#Mosaic").show();
+          ias.setOptions({ show: true, hide: false, enable: true });
+          ias.update();
         }
       }
 
       function set_crop() {
         set_state(1);
 
-        var ias = $("#Mosaic").imgAreaSelect({ instance: true });
+        var ias = getMosaicIasInstance();
+        if (!ias) {
+          logError("set_crop: imgAreaSelect instance not found");
+          return;
+        }
+
+        if (!isCvReady()) {
+          logError("set_crop: OpenCV is not ready");
+          alert("OpenCV is not loaded. Please refresh the page and try again.");
+          return;
+        }
+
         var sel = ias.getSelection();
+        logDebug("Selection from Mosaic", sel);
 
-        loadImage("images/Mosaic.png").then((inputMat) => {
-          inputMosaic = inputMat;
+        if (!sel || sel.width <= 0 || sel.height <= 0) {
+          logError("set_crop: invalid selection", sel);
+          alert("Please select a valid region from the Mosaic.");
+          return;
+        }
 
-          cropImage(
-            inputMat,
-            "layer4Image",
-            sel.x1,
-            sel.y1,
-            sel.width,
-            sel.height
-          );
-        });
+        loadImage("images/Mosaic.png")
+          .then((inputMat) => {
+            inputMosaic = inputMat;
+
+            cropImage(
+              inputMat,
+              "layer4Image",
+              sel.x1,
+              sel.y1,
+              sel.width,
+              sel.height,
+            );
+          })
+          .catch((err) => {
+            logError("set_crop: loadImage failed", err);
+          });
       }
 
       function cropImage(inputMat, output_img, x, y, w, h) {
+        logDebug("cropImage args", { x: x, y: y, w: w, h: h });
         let src = inputMat;
         let rect = new cv.Rect(x, y, w, h);
         let dst = new cv.Mat(w, h, cv.CV_8UC3);
@@ -186,6 +301,18 @@ at http://jquery.com
 
       function doTransform() {
         if (jstate == 0) {
+          alert("First click on Mosaic and select the Input Image.");
+          return;
+        }
+
+        if (!isCvReady()) {
+          logError("doTransform: OpenCV is not ready");
+          alert("OpenCV is not loaded. Please refresh the page and try again.");
+          return;
+        }
+
+        if (!croppedImage) {
+          logError("doTransform: primary image is not selected");
           alert("First click on Mosaic and select the Input Image.");
           return;
         }
@@ -221,31 +348,37 @@ at http://jquery.com
         if (!$("#Mosaic").is(":visible")) {
           set_state(2);
           $("#slider").remove();
-          loadImage(args_image).then((secondaryImg) => {
-            var primayImg = croppedImage;
-            processImages(primayImg, secondaryImg, args_opt, args_fitting);
+          loadImage(args_image)
+            .then((secondaryImg) => {
+              var primayImg = croppedImage;
+              processImages(primayImg, secondaryImg, args_opt, args_fitting);
 
-            let canvas1 = document.createElement("canvas");
-            cv.imshow(canvas1, primayImg);
-            document.getElementById("primaryImage").src = canvas1.toDataURL();
+              let canvas1 = document.createElement("canvas");
+              cv.imshow(canvas1, primayImg);
+              document.getElementById("primaryImage").src = canvas1.toDataURL();
 
-            let canvas2 = document.createElement("canvas");
-            cv.imshow(canvas2, secondaryImg);
-            document.getElementById("secondaryImage").src = canvas2.toDataURL();
+              let canvas2 = document.createElement("canvas");
+              cv.imshow(canvas2, secondaryImg);
+              document.getElementById("secondaryImage").src =
+                canvas2.toDataURL();
 
-            let canvas3 = document.createElement("canvas");
-            cv.imshow(canvas3, processedImage);
-            document.getElementById("processedImage").src = canvas3.toDataURL();
-            document.getElementById("layer5outputImage").src =
-              canvas3.toDataURL();
+              let canvas3 = document.createElement("canvas");
+              cv.imshow(canvas3, processedImage);
+              document.getElementById("processedImage").src =
+                canvas3.toDataURL();
+              document.getElementById("layer5outputImage").src =
+                canvas3.toDataURL();
 
-            var myImage = new Image();
-            myImage.name = $("img", $("#Layer-5")).attr("name");
-            myImage.src = $("img", $("#Layer-5")).attr("src");
-            myImage.onload = function () {
-              $("dims", "#imgInfo").html(this.height + " x " + this.width);
-            };
-          });
+              var myImage = new Image();
+              myImage.name = $("img", $("#Layer-5")).attr("name");
+              myImage.src = $("img", $("#Layer-5")).attr("src");
+              myImage.onload = function () {
+                $("dims", "#imgInfo").html(this.height + " x " + this.width);
+              };
+            })
+            .catch((err) => {
+              logError("doTransform: loadImage/process failed", err);
+            });
         }
       }
 
@@ -263,7 +396,8 @@ at http://jquery.com
             final_img.rows,
             final_img.cols,
             final_img.type(),
-            new cv.Scalar(255)
+            new cv.Scalar(255),
+            new cv.Scalar(255),
           );
           cv.min(final_img, scalarMat, final_img);
           scalarMat.delete();
@@ -291,7 +425,8 @@ at http://jquery.com
             final_img.rows,
             final_img.cols,
             final_img.type(),
-            new cv.Scalar(0)
+            new cv.Scalar(0),
+            new cv.Scalar(0),
           );
           cv.max(final_img, scalarMat, final_img);
           scalarMat.delete();
@@ -338,7 +473,8 @@ at http://jquery.com
             final_img.rows,
             final_img.cols,
             final_img.type(),
-            new cv.Scalar(255)
+            new cv.Scalar(255),
+            new cv.Scalar(255),
           );
           cv.min(final_img, scalarMat, final_img);
           scalarMat.delete();
@@ -366,7 +502,8 @@ at http://jquery.com
             final_img.rows,
             final_img.cols,
             final_img.type(),
-            new cv.Scalar(255)
+            new cv.Scalar(255),
+            new cv.Scalar(255),
           );
           cv.min(final_img, scalarMat, final_img);
           scalarMat.delete();
@@ -471,6 +608,11 @@ at http://jquery.com
 
       function loadImage(url) {
         return new Promise((resolve, reject) => {
+          if (!isCvReady()) {
+            reject(new Error("OpenCV is not ready"));
+            return;
+          }
+
           let img = new Image();
           img.crossOrigin = "Anonymous";
           img.src = url;
@@ -489,11 +631,61 @@ at http://jquery.com
         });
       }
 
+      function getMosaicIasInstance() {
+        var ias = $("#Mosaic-img").imgAreaSelect({ instance: true });
+        if (!ias) {
+          ias = $("#Mosaic").imgAreaSelect({ instance: true });
+        }
+        return ias;
+      }
+
       function onOpenCvReady() {
-        // console.log("OpenCV.js is ready.", cv.getBuildInformation);
+        logDebug("OpenCV runtime initialized");
+
+        var isAssessPage = assess || getQueryVariable("assess");
+        if (isAssessPage && !croppedImage) {
+          loadImage("images/assess/arith1_1.png")
+            .then((cImage) => {
+              croppedImage = cImage;
+              logDebug("Assessment primary image preloaded after OpenCV ready");
+            })
+            .catch((err) => {
+              logError("onOpenCvReady: assess preload failed", err);
+            });
+        }
+
+        initializeUi();
+      }
+
+      function initializeUi() {
+        if (uiInitialized) {
+          return;
+        }
+        uiInitialized = true;
 
         $(document).ready(function () {
+          logDebug("UI initialization started", {
+            hasCv: isCvReady(),
+            mosaicImgNaturalSize: {
+              width: document.getElementById("Mosaic-img")
+                ? document.getElementById("Mosaic-img").naturalWidth
+                : null,
+              height: document.getElementById("Mosaic-img")
+                ? document.getElementById("Mosaic-img").naturalHeight
+                : null,
+            },
+          });
+
+          // Delay fallback probing to avoid racing a still-initializing primary OpenCV load.
+          setTimeout(function () {
+            if (!isCvReady()) {
+              ensureOpenCvLoaded();
+            }
+          }, 2000);
+
           session.start();
+
+          var mosaicInitiallyVisible = !!assess;
 
           if (exp === "piping") {
             set_state(1);
@@ -514,9 +706,17 @@ at http://jquery.com
             }
           });
 
+          $("#select-image").attr({ role: "button", tabindex: "0" });
+
           $("button1", "#Layer-2").button();
           $("button1", "#Layer-2").click(function () {
             toggleMosaic();
+          });
+          $("button1", "#Layer-2").keydown(function (event) {
+            if (event.which === 13 || event.which === 32) {
+              event.preventDefault();
+              toggleMosaic();
+            }
           });
 
           $("button2", "#Layer-2").button();
@@ -538,7 +738,8 @@ at http://jquery.com
               "src",
               assess
                 ? "images/assess/" + id + "_" + currentS + ".png"
-                : "images/Layer-4.jpg"
+                : "images/Layer-4.jpg",
+                : "images/Layer-4.jpg",
             );
 
             $("#sliderContent").replaceWith(
@@ -565,7 +766,8 @@ at http://jquery.com
                 </div>\
             </div>\
             <div id="slider"></div>\
-        </div>'
+        </div>',
+        </div>',
             );
           });
 
@@ -573,7 +775,7 @@ at http://jquery.com
             doTransform();
           });
 
-          $("#Mosaic").imgAreaSelect({
+          $("#Mosaic-img").imgAreaSelect({
             handles: true,
             movable: true,
             persistent: true,
@@ -582,11 +784,20 @@ at http://jquery.com
             y1: 300,
             x2: 600,
             y2: 600,
-            hide: false,
+            hide: !mosaicInitiallyVisible,
+            disable: !mosaicInitiallyVisible,
             imageHeight: 900,
             imageWidth: 900,
           });
-          toggleMosaic();
+          logDebug("imgAreaSelect initialized on #Mosaic-img", {
+            displayWidth: $("#Mosaic-img").width(),
+            displayHeight: $("#Mosaic-img").height(),
+          });
+          if (mosaicInitiallyVisible) {
+            $("#Mosaic").show();
+          } else {
+            $("#Mosaic").hide();
+          }
 
           // new js
           var titleText = assess ? "Assessment" : "Start";
@@ -616,6 +827,8 @@ at http://jquery.com
       Module = {
         onRuntimeInitialized: onOpenCvReady,
       };
+
+      initializeUi();
     </script>
   </head>
 
@@ -741,7 +954,7 @@ at http://jquery.com
         <h2 style="text-align: center">Image Arithmetic</h2>
         <div id="nextBox"></div>
 
-        <button1 style="display: none">Select Image</button1>
+        <button1 id="select-image" style="display: none">Select Image</button1>
         <button4>Reset</button4>
         <button2>Run</button2>
         <br /><br />
