@@ -1,36 +1,48 @@
-The experiment is design to understand and learn the image arithmetic concepts. This experiment consists five parts:
+The experiment is designed to understand and learn image arithmetic concepts. It demonstrates five operations:
 
 1. Image addition
+2. Image subtraction
+3. Image difference
+4. Image multiplication
+5. Image division
 
-2. Image Subtraction
+**Steps to run the simulation**
 
-3. Image Difference
+1. Click **Select Image** and drag over the mosaic to choose a region.
 
-4. Image Multiplication
+   - On small screens, use a drag or touch-drag gesture directly on the mosaic image.
+   - The selected region appears in the **Input Image** panel.
 
-5. Image Division
+2. Choose one of the images in the **Second Operand Picker**.
 
-**Steps to run the experiments**
+   - **Dull image** gives a darker operand.
+   - **Bright image** gives a brighter operand.
+   - **Gradient image** gives a smooth intensity ramp.
+   - **Mosaic crop preview** uses the selected crop as the second operand.
 
-1. Select image from the mosaic using 'select image' option
+3. Select an operation from **Addition**, **Subtraction**, **Difference**, **Multiplication**, or **Division**.
 
-   - Select region of the image to load it in the input image panel
+4. Select a mapping from **Normal**, **Clipping**, or **Auto-Scaling**.
 
-   - Select secondary image by choosing either of the 'dull' , 'bright' or 'gradient' images
+   - **Normal** shows the raw arithmetic result in display form.
+   - **Clipping** limits values to the display range.
+   - **Auto-Scaling** remaps the result to use the full intensity range.
 
-2. Select one option from 'addition', 'subtraction', 'difference', 'multiplication' and 'division'
+5. Click **Run** to perform the operation.
 
-   - Select the one option from 'clipping' and 'auto-scaling'
+   - The result is displayed in the **Output Image** panel.
+   - The status bar shows the current step or any validation message.
 
-3. Select run option to perform the operations
+6. Click **Reset** to clear the selected crop and restore the default picker, operation, and mapping.
 
-   - Output result will be displayed in the output panel
+**What to expect**
 
-   - Along with intermediate results
+1. The input panel updates immediately after a valid mosaic selection.
+2. The output panel updates only after you click **Run**.
+3. The selected second operand changes the output image.
+4. Different operation and mapping choices should produce visibly different results.
 
+**Interesting observations**
 
-Interesting Observations
-
-1. Do the Subtraction and Difference operations, and compare the results.
-
-2. Do the Multiplication operation first with clipping and then with auto-scaling, and compare the results.
+1. Compare subtraction and difference to see how absolute difference avoids negative intensities.
+2. Compare multiplication with clipping and auto-scaling to see how mapping changes the output.
