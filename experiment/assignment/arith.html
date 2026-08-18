@@ -105,7 +105,7 @@ at http://jquery.com
     <!--for COntent Slider - Jquery Slider/-->
     <link rel="stylesheet" type="text/css" href="css/jquery-slider.css" />
 
-    <!-- opencv.js  -->
+    <!-- OpenCV.js loaded from a valid CDN build -->
     <script
       src="https://docs.opencv.org/4.x/opencv.js"
       type="text/javascript"
@@ -183,6 +183,7 @@ at http://jquery.com
           case 0:
             $("#nextBox").html(
               "Start the Experiment by clicking on 'Select Image' and selecting an Input Image from the Mosaic",
+              "Start the Experiment by clicking on 'Select Image' and selecting an Input Image from the Mosaic",
             );
             buttId = "button1";
             blinker(10);
@@ -205,12 +206,14 @@ at http://jquery.com
             }
             $("#nextBox").html(
               "Select the secondary image, select appropriate parameters and click on 'Run'.",
+              "Select the secondary image, select appropriate parameters and click on 'Run'.",
             );
             buttId = "button2";
             blinker(10);
             break;
           case 2:
             $("#nextBox").html(
+              "Observe the result and try different operations with different secondary Images.",
               "Observe the result and try different operations with different secondary Images.",
             );
             break;
@@ -394,6 +397,7 @@ at http://jquery.com
             final_img.cols,
             final_img.type(),
             new cv.Scalar(255),
+            new cv.Scalar(255),
           );
           cv.min(final_img, scalarMat, final_img);
           scalarMat.delete();
@@ -421,6 +425,7 @@ at http://jquery.com
             final_img.rows,
             final_img.cols,
             final_img.type(),
+            new cv.Scalar(0),
             new cv.Scalar(0),
           );
           cv.max(final_img, scalarMat, final_img);
@@ -469,6 +474,7 @@ at http://jquery.com
             final_img.cols,
             final_img.type(),
             new cv.Scalar(255),
+            new cv.Scalar(255),
           );
           cv.min(final_img, scalarMat, final_img);
           scalarMat.delete();
@@ -496,6 +502,7 @@ at http://jquery.com
             final_img.rows,
             final_img.cols,
             final_img.type(),
+            new cv.Scalar(255),
             new cv.Scalar(255),
           );
           cv.min(final_img, scalarMat, final_img);
@@ -732,6 +739,7 @@ at http://jquery.com
               assess
                 ? "images/assess/" + id + "_" + currentS + ".png"
                 : "images/Layer-4.jpg",
+                : "images/Layer-4.jpg",
             );
 
             $("#sliderContent").replaceWith(
@@ -758,6 +766,7 @@ at http://jquery.com
                 </div>\
             </div>\
             <div id="slider"></div>\
+        </div>',
         </div>',
             );
           });
