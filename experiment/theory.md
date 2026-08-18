@@ -1,14 +1,14 @@
 Image arithmetic refers to performing arithmetic operations on the pixel values of one or more images. These operations are useful for combining images, comparing images, and modifying or analysing image information.
 
-Let \(A(x,y)\) and \(B(x,y)\) represent two input images, where \(x\) and \(y\) denote the pixel coordinates. An arithmetic operation between the two images can be represented as
+Let $A(x,y)$ and $B(x,y)$ represent two input images, where $x$ and $y$ denote the pixel coordinates. An arithmetic operation between the two images can be represented as
 
 $$
 I(x,y) = A(x,y) \; o \; B(x,y)
 $$
 
-where \(o\) represents an arithmetic operation and \(I(x,y)\) is the resulting image.
+where $o$ represents an arithmetic operation and $I(x,y)$ is the resulting image.
 
-For image arithmetic, the input images should generally have the same dimensions, \(M \times N\), so that corresponding pixels can be operated on directly.
+For image arithmetic, the input images should generally have the same dimensions, $M \times N$, so that corresponding pixels can be operated on directly.
 
 ### Pixel-wise Arithmetic Operations
 
@@ -18,13 +18,13 @@ $$
 p = A(x,y)
 $$
 
-and
+<div align="center">and</div>
 
 $$
 q = B(x,y)
 $$
 
-be the pixel values at the same location in the two input images. Let \(r = I(x,y)\) be the corresponding pixel value in the output image.
+be the pixel values at the same location in the two input images. Let $(r = I(x,y))$ be the corresponding pixel value in the output image.
 
 The basic arithmetic operations are addition, subtraction, difference, multiplication, and division.
 
@@ -38,7 +38,7 @@ $$
 I(x,y) = A(x,y) + B(x,y)
 $$
 
-or
+<div align="center">or</div>
 
 $$
 r = p + q
@@ -52,13 +52,13 @@ $$
 I(x,y) = A(x,y) - B(x,y)
 $$
 
-or
+<div align="center">or</div>
 
 $$
 r = p - q
 $$
 
-Subtraction determines the difference between corresponding pixel values. Since the order of the images matters, \(A-B\) and \(B-A\) can produce different results.
+Subtraction determines the difference between corresponding pixel values. Since the order of the images matters, $(A-B)$ and $(B-A)$ can produce different results.
 
 **Difference:**
 
@@ -66,7 +66,7 @@ $$
 I(x,y) = \left|A(x,y) - B(x,y)\right|
 $$
 
-or
+<div align="center">or</div>
 
 $$
 r = |p-q|
@@ -80,7 +80,7 @@ $$
 I(x,y) = A(x,y) \times B(x,y)
 $$
 
-or
+<div align="center">or</div>
 
 $$
 r = p \times q
@@ -94,7 +94,7 @@ $$
 I(x,y) = \frac{A(x,y)}{B(x,y)}
 $$
 
-or
+<div align="center">or</div>
 
 $$
 r = \frac{p}{q}
@@ -104,7 +104,7 @@ Division computes the ratio between corresponding pixel values. The divisor must
 
 ### Dynamic Range of an Image
 
-A digital image stores pixel values within a limited range. For a \(b\)-bit image, the valid range is
+A digital image stores pixel values within a limited range. For a $b$-bit image, the valid range is
 
 $$
 0 \leq r \leq 2^b-1
@@ -169,15 +169,15 @@ r, & 0 \leq r \leq 255 \\
 \end{cases}
 $$
 
-where \(r_c\) is the clipped output value.
+where $(r_c)$ is the clipped output value.
 
 Clipping preserves values that are already within the valid range but discards information beyond the lower and upper limits.
 
 **Auto-scaling:**
 
-Auto-scaling maps the range of the computed result to the valid range of the output image. For an 8-bit image, the result can be mapped to the range \([0,255]\).
+Auto-scaling maps the range of the computed result to the valid range of the output image. For an 8-bit image, the result can be mapped to the range $([0,255])$.
 
-Let \(r*{\min}\) and \(r*{\max}\) be the minimum and maximum values in the result of an arithmetic operation. The auto-scaled value \(r_a\) is given by
+Let $r_{\min}$ and $r_{\max}$ be the minimum and maximum values in the result of an arithmetic operation. The auto-scaled value $r_a$ is given by
 
 $$
 r_a =
@@ -186,7 +186,7 @@ r_a =
 {r_{\max}-r_{\min}}
 $$
 
-This transformation maps \(r*{\min}\) to \(0\) and \(r*{\max}\) to \(255\).
+This transformation maps $r_{\min}$ to $0$ and $r_{\max}$ to $255$.
 
 Auto-scaling is useful when the computed values have a wider or different range from the range required for display. However, it changes the numerical representation of the result by mapping the values to a new range.
 
