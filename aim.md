@@ -1,0 +1,1 @@
+The aim of this experiment is to study pixel-wise arithmetic operations such as addition, subtraction, difference, multiplication, and division on digital images, and to understand their effect on the resulting image and its pixel-value range.

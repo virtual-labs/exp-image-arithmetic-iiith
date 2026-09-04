@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Arithmetic Simulation</title>
+    <style>
+      :root {
+        --bg: #f3f5f8;
+        --panel: #ffffff;
+        --border: #d4d9e0;
+        --accent: #1f6feb;
+        --muted: #5d6470;
+        --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: var(--bg);
+        color: #1f2937;
+      }
+
+      .app {
+        max-width: 1200px;
+        margin: 28px auto;
+        padding: 20px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 16px 20px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 1.8rem;
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: #f8fafc;
+        color: #111827;
+        padding: 10px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: white;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: 1.3fr 0.8fr 0.8fr;
+        gap: 18px;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        border-radius: 12px;
+        padding: 14px;
+        min-height: 260px;
+      }
+
+      .panel h3 {
+        margin: 0 0 12px;
+        font-size: 1.1rem;
+      }
+
+      .mosaic-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: #293541;
+        overflow: hidden;
+        touch-action: none;
+      }
+
+      #Mosaic {
+        position: relative;
+      }
+
+      #Mosaic-img {
+        position: relative;
+        z-index: 1;
+      }
+
+      #Mosaic-img,
+      #layer4Image,
+      #secondaryPreview,
+      #resultPreview {
+        display: block;
+        max-width: 100%;
+        max-height: 420px;
+        border-radius: 8px;
+        background: #eef3f8;
+      }
+
+      .selection-overlay {
+        position: absolute;
+        border: 2px solid #3b82f6;
+        background: rgba(59, 130, 246, 0.18);
+        pointer-events: none;
+        display: none;
+        z-index: 20;
+      }
+
+      .thumb-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(90px, 1fr));
+        gap: 10px;
+      }
+
+      .thumb {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 8px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        cursor: pointer;
+        background: #fff;
+      }
+
+      .thumb.selected {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 1px rgba(31, 111, 235, 0.2);
+      }
+
+      .thumb img {
+        width: 100%;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 6px;
+      }
+
+      .image-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 240px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: linear-gradient(180deg, #f8fafc, #eef2f7);
+        overflow: hidden;
+      }
+
+      .image-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: inherit;
+      }
+
+      .controls {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 16px 18px;
+      }
+
+      .group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .group h3 {
+        margin: 0 0 6px;
+      }
+
+      .group label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+      }
+
+      .status {
+        margin-top: 16px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+      }
+
+      @media (max-width: 900px) {
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .controls {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app">
+      <div class="topbar">
+        <div class="toolbar">
+          <button id="button1" type="button">Select Image</button>
+          <button id="button4" type="button">Reset</button>
+          <button id="button2" type="button" class="primary">Run</button>
+        </div>
+        <div id="status" class="status">OpenCV is being initialized…</div>
+      </div>
+
+      <div class="workspace">
+        <div id="Mosaic" class="panel">
+          <h3>Mosaic</h3>
+          <div class="mosaic-wrap">
+            <img id="Mosaic-img" src="images/Mosaic.png" alt="Mosaic" />
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Input Image</h3>
+          <div class="image-box">
+            <img
+              id="layer4Image"
+              src="images/Layer-4.jpg"
+              alt="Selected input"
+            />
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Output Image</h3>
+          <div class="image-box">
+            <img id="layer5outputImage" src="images/Layer-5.jpg" alt="Output" />
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="group">
+          <h3>Second Operand Picker</h3>
+          <div class="thumb-grid" id="secondaryGrid"></div>
+        </div>
+
+        <div class="group">
+          <h3>Select Operation</h3>
+          <label
+            ><input type="radio" name="Operatn" value="1" checked />
+            Addition</label
+          >
+          <label
+            ><input type="radio" name="Operatn" value="2" /> Subtraction</label
+          >
+          <label
+            ><input type="radio" name="Operatn" value="3" /> Difference</label
+          >
+          <label
+            ><input type="radio" name="Operatn" value="4" />
+            Multiplication</label
+          >
+          <label
+            ><input type="radio" name="Operatn" value="5" /> Division</label
+          >
+
+          <h3>Mapping</h3>
+          <label
+            ><input type="radio" name="fitting" value="0" checked />
+            Normal</label
+          >
+          <label
+            ><input type="radio" name="fitting" value="1" /> Clipping</label
+          >
+          <label
+            ><input type="radio" name="fitting" value="2" /> Auto-Scaling</label
+          >
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="js/opencv.js"></script>
+    <script type="text/javascript">
+      const app = {
+        mosaicMat: null,
+        croppedImage: null,
+        processedImage: null,
+        selectedSecondary: "images/add1.png",
+        selection: null,
+        dragging: false,
+        startPoint: null,
+        currentPoint: null,
+      };
+
+      const mosaic = document.getElementById("Mosaic");
+      const mosaicWrap = document.querySelector(".mosaic-wrap");
+      const mosaicImg = document.getElementById("Mosaic-img");
+      const statusEl = document.getElementById("status");
+      const selectionOverlay = document.createElement("div");
+      selectionOverlay.className = "selection-overlay";
+      mosaicWrap.appendChild(selectionOverlay);
+
+      function placeSelectionOverlay(displayX, displayY, displayW, displayH) {
+        const wrapRect = mosaicWrap.getBoundingClientRect();
+        const imageRect = mosaicImg.getBoundingClientRect();
+        const offsetX = imageRect.left - wrapRect.left;
+        const offsetY = imageRect.top - wrapRect.top;
+
+        selectionOverlay.style.left = offsetX + displayX + "px";
+        selectionOverlay.style.top = offsetY + displayY + "px";
+        selectionOverlay.style.width = displayW + "px";
+        selectionOverlay.style.height = displayH + "px";
+      }
+
+      function setStatus(message, isError) {
+        statusEl.textContent = message;
+        statusEl.style.background = isError ? "#fef2f2" : "#eff6ff";
+        statusEl.style.color = isError ? "#b91c1c" : "#1d4ed8";
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+      }
+
+      function getSelectionPoint(event) {
+        const source = event.touches?.[0] || event.changedTouches?.[0] || event;
+        return {
+          clientX: source.clientX,
+          clientY: source.clientY,
+        };
+      }
+
+      function loadImage(url) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "Anonymous";
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            const imageData = ctx.getImageData(0, 0, img.width, img.height);
+            const mat = new cv.Mat(
+              imageData.height,
+              imageData.width,
+              cv.CV_8UC4,
+            );
+            mat.data.set(imageData.data);
+            resolve(mat);
+          };
+          img.onerror = (err) => reject(err);
+          img.src = url;
+        });
+      }
+
+      function renderMatToImage(imageElement, mat) {
+        const canvas = document.createElement("canvas");
+        cv.imshow(canvas, mat);
+        imageElement.src = canvas.toDataURL();
+      }
+
+      function createSecondaryButtons() {
+        const grid = document.getElementById("secondaryGrid");
+        const options = [
+          { name: "Dull image", src: "images/add1.png" },
+          { name: "Bright image", src: "images/add2.png" },
+          { name: "Gradient image", src: "images/add3.png" },
+          { name: "Mosaic crop preview", src: "images/Layer-4.jpg" },
+        ];
+
+        options.forEach((option, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "thumb" + (index === 0 ? " selected" : "");
+          button.innerHTML =
+            '<img src="' +
+            option.src +
+            '" alt="' +
+            option.name +
+            '" /><span>' +
+            option.name +
+            "</span>";
+
+          button.addEventListener("click", () => {
+            document
+              .querySelectorAll(".thumb")
+              .forEach((el) => el.classList.remove("selected"));
+            button.classList.add("selected");
+            app.selectedSecondary = option.src;
+            setStatus("Second operand picker set to " + option.name + ".");
+          });
+
+          grid.appendChild(button);
+        });
+      }
+
+      function showMosaic(show) {
+        mosaic.style.display = show ? "block" : "none";
+      }
+
+      function beginSelection(event) {
+        if (app.dragging) return;
+        if (
+          event.type === "mousedown" &&
+          event.button !== 0 &&
+          event.which !== 1
+        ) {
+          return;
+        }
+        event.preventDefault();
+
+        const point = getSelectionPoint(event);
+
+        const rect = mosaicImg.getBoundingClientRect();
+        const localX = clamp(point.clientX - rect.left, 0, rect.width);
+        const localY = clamp(point.clientY - rect.top, 0, rect.height);
+
+        app.dragging = true;
+        app.startPoint = {
+          x: localX * (mosaicImg.naturalWidth / rect.width),
+          y: localY * (mosaicImg.naturalHeight / rect.height),
+        };
+        app.currentPoint = { ...app.startPoint };
+
+        placeSelectionOverlay(localX, localY, 0, 0);
+        selectionOverlay.style.display = "block";
+
+        setStatus("Drag across the mosaic to create a crop region.");
+      }
+
+      function moveSelection(event) {
+        if (!app.dragging || !app.startPoint) return;
+
+        event.preventDefault();
+        const point = getSelectionPoint(event);
+
+        const rect = mosaicImg.getBoundingClientRect();
+        const localX = clamp(point.clientX - rect.left, 0, rect.width);
+        const localY = clamp(point.clientY - rect.top, 0, rect.height);
+
+        const x = localX * (mosaicImg.naturalWidth / rect.width);
+        const y = localY * (mosaicImg.naturalHeight / rect.height);
+        app.currentPoint = { x, y };
+
+        const x1 = Math.min(app.startPoint.x, x);
+        const y1 = Math.min(app.startPoint.y, y);
+        const x2 = Math.max(app.startPoint.x, x);
+        const y2 = Math.max(app.startPoint.y, y);
+
+        const displayX = x1 / (mosaicImg.naturalWidth / rect.width);
+        const displayY = y1 / (mosaicImg.naturalHeight / rect.height);
+        const displayW = (x2 - x1) / (mosaicImg.naturalWidth / rect.width);
+        const displayH = (y2 - y1) / (mosaicImg.naturalHeight / rect.height);
+
+        placeSelectionOverlay(displayX, displayY, displayW, displayH);
+      }
+
+      function finalizeSelection(event) {
+        if (!app.dragging) return;
+
+        if (event) {
+          event.preventDefault();
+          moveSelection(event);
+        }
+
+        const x1 = Math.min(app.startPoint.x, app.currentPoint.x);
+        const y1 = Math.min(app.startPoint.y, app.currentPoint.y);
+        const x2 = Math.max(app.startPoint.x, app.currentPoint.x);
+        const y2 = Math.max(app.startPoint.y, app.currentPoint.y);
+        const width = Math.max(1, x2 - x1);
+        const height = Math.max(1, y2 - y1);
+
+        app.dragging = false;
+        selectionOverlay.style.display = "none";
+
+        if (width < 5 || height < 5) {
+          setStatus(
+            "Selection is too small. Drag a larger region on the mosaic.",
+            true,
+          );
+          return;
+        }
+
+        app.selection = {
+          x1: Math.round(x1),
+          y1: Math.round(y1),
+          width: Math.round(width),
+          height: Math.round(height),
+        };
+
+        cropFromSelection(app.selection);
+      }
+
+      function setupMosaicSelection() {
+        mosaicImg.addEventListener("pointerdown", (event) => {
+          beginSelection(event);
+          if (app.dragging && mosaicImg.setPointerCapture) {
+            mosaicImg.setPointerCapture(event.pointerId);
+          }
+        });
+        mosaicImg.addEventListener("pointermove", moveSelection);
+        mosaicImg.addEventListener("pointerup", finalizeSelection);
+        mosaicImg.addEventListener("pointercancel", finalizeSelection);
+        mosaicImg.addEventListener("mousedown", beginSelection);
+        mosaicImg.addEventListener("mousemove", moveSelection);
+        window.addEventListener("mouseup", finalizeSelection);
+        mosaicImg.addEventListener(
+          "touchstart",
+          (event) => beginSelection(event),
+          { passive: false },
+        );
+        mosaicImg.addEventListener(
+          "touchmove",
+          (event) => moveSelection(event),
+          { passive: false },
+        );
+        mosaicImg.addEventListener(
+          "touchend",
+          (event) => finalizeSelection(event),
+          { passive: false },
+        );
+        mosaicImg.addEventListener(
+          "touchcancel",
+          (event) => finalizeSelection(event),
+          { passive: false },
+        );
+      }
+
+      function cropFromSelection(selection) {
+        if (!app.mosaicMat) {
+          setStatus("The mosaic image has not loaded yet.", true);
+          return;
+        }
+
+        const rect = new cv.Rect(
+          selection.x1,
+          selection.y1,
+          selection.width,
+          selection.height,
+        );
+
+        const cropped = app.mosaicMat.roi(rect).clone();
+        app.croppedImage = cropped;
+        renderMatToImage(document.getElementById("layer4Image"), cropped);
+        setStatus("A valid image region has been selected from the mosaic.");
+      }
+
+      function clampByte(value) {
+        return Math.min(255, Math.max(0, value));
+      }
+
+      function normalizeMap(values, mapMode) {
+        if (values.length === 0) return values;
+        let minVal = 255;
+        let maxVal = 0;
+
+        for (let i = 0; i < values.length; i++) {
+          if (values[i] < minVal) minVal = values[i];
+          if (values[i] > maxVal) maxVal = values[i];
+        }
+
+        if (maxVal === minVal) {
+          return values.map(() => 0);
+        }
+
+        const range = maxVal - minVal || 1;
+        if (mapMode === 2) {
+          return values.map((value) =>
+            Math.round(((value - minVal) / range) * 255),
+          );
+        }
+
+        return values.map((value) => clampByte(value));
+      }
+
+      function computeArithmetic(
+        primaryGray,
+        secondaryGray,
+        operation,
+        mapMode,
+      ) {
+        const width = Math.max(primaryGray.cols, secondaryGray.cols);
+        const height = Math.max(primaryGray.rows, secondaryGray.rows);
+        const pData = primaryGray.data;
+        const sData = secondaryGray.data;
+        const rawValues = new Array(width * height);
+
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const idx = y * width + x;
+            const p =
+              y < primaryGray.rows && x < primaryGray.cols
+                ? pData[y * primaryGray.cols + x]
+                : 0;
+            const s =
+              y < secondaryGray.rows && x < secondaryGray.cols
+                ? sData[y * secondaryGray.cols + x]
+                : 0;
+            let raw = 0;
+
+            switch (Number(operation)) {
+              case 1:
+                raw = p + s;
+                break;
+              case 2:
+                raw = p - s;
+                break;
+              case 3:
+                raw = Math.abs(p - s);
+                break;
+              case 4:
+                raw = p * s;
+                break;
+              case 5:
+                raw = s === 0 ? 255 : (p / s) * 255;
+                break;
+              default:
+                raw = p;
+            }
+
+            rawValues[idx] = raw;
+          }
+        }
+
+        const mappedValues = normalizeMap(rawValues, Number(mapMode));
+        const resultData = new Uint8ClampedArray(width * height);
+
+        for (let i = 0; i < mappedValues.length; i++) {
+          resultData[i] = clampByte(mappedValues[i]);
+        }
+
+        const result = new cv.Mat(height, width, cv.CV_8UC1);
+        result.data.set(resultData);
+        return result;
+      }
+
+      function processImages(primaryImg, secondaryImg, opt, fitting) {
+        let prim = new cv.Mat();
+        let sec = new cv.Mat();
+
+        if (
+          primaryImg.cols !== secondaryImg.cols ||
+          primaryImg.rows !== secondaryImg.rows
+        ) {
+          const targetWidth = Math.max(primaryImg.cols, secondaryImg.cols);
+          const targetHeight = Math.max(primaryImg.rows, secondaryImg.rows);
+
+          const resizedSecondary = new cv.Mat();
+          cv.resize(
+            secondaryImg,
+            resizedSecondary,
+            new cv.Size(targetWidth, targetHeight),
+            0,
+            0,
+            cv.INTER_AREA,
+          );
+
+          const resizedPrimary = new cv.Mat();
+          cv.resize(
+            primaryImg,
+            resizedPrimary,
+            new cv.Size(targetWidth, targetHeight),
+            0,
+            0,
+            cv.INTER_AREA,
+          );
+
+          cv.cvtColor(resizedPrimary, prim, cv.COLOR_RGBA2GRAY);
+          cv.cvtColor(resizedSecondary, sec, cv.COLOR_RGBA2GRAY);
+          resizedPrimary.delete();
+          resizedSecondary.delete();
+        } else {
+          cv.cvtColor(primaryImg, prim, cv.COLOR_RGBA2GRAY);
+          cv.cvtColor(secondaryImg, sec, cv.COLOR_RGBA2GRAY);
+        }
+
+        const result = computeArithmetic(
+          prim,
+          sec,
+          Number(opt),
+          Number(fitting),
+        );
+
+        app.processedImage = result.clone();
+        prim.delete();
+        sec.delete();
+        renderMatToImage(document.getElementById("layer5outputImage"), result);
+        setStatus("Processing complete. Result image rendered.");
+        return result;
+      }
+
+      function doTransform() {
+        if (!app.croppedImage) {
+          setStatus(
+            "Please select a valid region from the mosaic first.",
+            true,
+          );
+          return;
+        }
+
+        const opt =
+          document.querySelector('input[name="Operatn"]:checked')?.value || "1";
+        const fitting =
+          document.querySelector('input[name="fitting"]:checked')?.value || "0";
+
+        if (!app.selectedSecondary) {
+          setStatus("Please choose a secondary image.", true);
+          return;
+        }
+
+        loadImage(app.selectedSecondary)
+          .then((secondaryMat) => {
+            processImages(app.croppedImage, secondaryMat, opt, fitting);
+          })
+          .catch((err) => {
+            console.error(err);
+            setStatus("Unable to load the chosen secondary image.", true);
+          });
+      }
+
+      function resetSimulation() {
+        app.croppedImage = null;
+        app.processedImage = null;
+        app.selection = null;
+        app.selectedSecondary = "images/add1.png";
+        selectionOverlay.style.display = "none";
+        document.getElementById("layer4Image").src = "images/Layer-4.jpg";
+        document.getElementById("layer5outputImage").src = "images/Layer-5.jpg";
+        document.querySelectorAll('input[name="Operatn"]').forEach((input) => {
+          input.checked = input.value === "1";
+        });
+        document.querySelectorAll('input[name="fitting"]').forEach((input) => {
+          input.checked = input.value === "0";
+        });
+        document.querySelectorAll(".thumb").forEach((thumb, index) => {
+          thumb.classList.toggle("selected", index === 0);
+        });
+        setStatus(
+          "Simulation reset. Select a mosaic region, choose the second operand, and run the operation.",
+        );
+      }
+
+      function onOpenCvReady() {
+        console.log("[arith-minimal] OpenCV ready");
+        createSecondaryButtons();
+        setupMosaicSelection();
+
+        loadImage("images/Mosaic.png")
+          .then((mat) => {
+            app.mosaicMat = mat;
+            setStatus(
+              "OpenCV is ready. Drag or touch-drag on the mosaic to select an input region.",
+            );
+          })
+          .catch((err) => {
+            console.error(err);
+            setStatus("Could not load the mosaic image.", true);
+          });
+      }
+
+      document.getElementById("button1").addEventListener("click", () => {
+        showMosaic(true);
+        setStatus(
+          "Drag or touch-drag a rectangle over the mosaic to select an input region.",
+        );
+      });
+
+      document.getElementById("button2").addEventListener("click", doTransform);
+      document
+        .getElementById("button4")
+        .addEventListener("click", resetSimulation);
+
+      if (window.cv && typeof window.cv.Mat !== "undefined") {
+        onOpenCvReady();
+      } else {
+        setTimeout(() => {
+          if (window.cv && typeof window.cv.Mat !== "undefined") {
+            onOpenCvReady();
+          } else {
+            setStatus("OpenCV did not initialize correctly.", true);
+          }
+        }, 500);
+      }
+    </script>
+  </body>
+</html>

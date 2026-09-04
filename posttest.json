@@ -1,0 +1,158 @@
+{
+  "version": 2.0,
+  "questions": [
+    {
+      "question": "1. Two images have the same dimensions and are to be combined by adding the corresponding pixel values. Which condition is important for direct pixel-wise image addition?",
+      "answers": {
+        "a": "The images should have the same dimensions",
+        "b": "The images must have different resolutions",
+        "c": "Only the boundary pixels should be available",
+        "d": "The images must contain only binary values"
+      },
+      "correctAnswer": "a",
+      "explanations": {
+        "a": "Correct. The corresponding pixels of two images can be operated on directly when the images have the same dimensions.",
+        "b": "Incorrect. Different resolutions are not a requirement for direct pixel-wise addition.",
+        "c": "Incorrect. Image arithmetic is performed on corresponding pixels throughout the images, not only on boundary pixels.",
+        "d": "Incorrect. Image arithmetic can be performed on grayscale images with a range of pixel values, not only binary images."
+      },
+      "difficulty": "beginner"
+    },
+    {
+      "question": "2. Which operation calculates the absolute difference between corresponding pixels of two images?",
+      "answers": {
+        "a": "Addition",
+        "b": "Multiplication",
+        "c": "Difference",
+        "d": "Division"
+      },
+      "correctAnswer": "c",
+      "explanations": {
+        "c": "Correct. The difference operation is defined as |A(x,y) - B(x,y)| and therefore uses the absolute difference between corresponding pixels.",
+        "a": "Incorrect. Addition combines the corresponding pixel values by summing them.",
+        "b": "Incorrect. Multiplication combines the corresponding pixel values by multiplying them.",
+        "d": "Incorrect. Division computes the ratio between corresponding pixel values."
+      },
+      "difficulty": "beginner"
+    },
+    {
+      "question": "3. Which of the following can occur when two 8-bit images are added without immediately adjusting the output range?",
+      "answers": {
+        "a": "The output pixel can never exceed 255",
+        "b": "The output pixel can have a value as high as 510",
+        "c": "The output pixel must always be negative",
+        "d": "The output image must become binary"
+      },
+      "correctAnswer": "b",
+      "explanations": {
+        "b": "Correct. Each input pixel can have a maximum value of 255, so adding two such pixels can produce 510.",
+        "a": "Incorrect. Addition of two 8-bit pixel values can produce a result greater than the maximum 8-bit value.",
+        "c": "Incorrect. Addition of non-negative 8-bit pixel values does not produce negative values.",
+        "d": "Incorrect. Addition does not convert an image into a binary image."
+      },
+      "difficulty": "beginner"
+    },
+    {
+      "question": "4. An 8-bit image is obtained after adding two images, and some calculated pixel values are greater than 255. Which approach limits those values to the valid 8-bit range without remapping the entire result range?",
+      "answers": {
+        "a": "Auto-scaling",
+        "b": "Division",
+        "c": "Clipping",
+        "d": "Difference"
+      },
+      "correctAnswer": "c",
+      "explanations": {
+        "c": "Correct. Clipping sets values above 255 to 255 and values below 0 to 0 for an 8-bit output image.",
+        "a": "Incorrect. Auto-scaling remaps the range of the result instead of simply limiting values that fall outside the valid range.",
+        "b": "Incorrect. Division is an arithmetic operation and does not by itself define how out-of-range values are handled.",
+        "d": "Incorrect. Difference is an arithmetic operation and is not a method for limiting an output to the valid 8-bit range."
+      },
+      "difficulty": "intermediate"
+    },
+    {
+      "question": "5. A difference image is calculated using two images A and B. If A(x,y) = 180 and B(x,y) = 230, what is the resulting pixel value?",
+      "answers": {
+        "a": "50",
+        "b": "-50",
+        "c": "410",
+        "d": "230"
+      },
+      "correctAnswer": "a",
+      "explanations": {
+        "a": "Correct. The difference is |180 - 230| = 50.",
+        "b": "Incorrect. The difference operation uses the absolute value, so the result cannot be negative.",
+        "c": "Incorrect. 410 is obtained by adding the two pixel values, not by calculating their absolute difference.",
+        "d": "Incorrect. The difference operation does not simply return the second input pixel value."
+      },
+      "difficulty": "intermediate"
+    },
+    {
+      "question": "6. Which statement best describes auto-scaling of the result of an image arithmetic operation?",
+      "answers": {
+        "a": "It replaces every negative value with 0 and every value above 255 with 255",
+        "b": "It changes the dimensions of the output image",
+        "c": "It converts the result into a binary image",
+        "d": "It remaps the result values so that the output fits the desired range"
+      },
+      "correctAnswer": "d",
+      "explanations": {
+        "d": "Correct. Auto-scaling remaps the minimum and maximum values of the arithmetic result to the required output range, such as 0 to 255 for an 8-bit image.",
+        "a": "Incorrect. This describes the basic idea of clipping rather than auto-scaling.",
+        "b": "Incorrect. Auto-scaling changes pixel values, not the spatial dimensions of the image.",
+        "c": "Incorrect. Auto-scaling does not convert an image into a binary representation."
+      },
+      "difficulty": "intermediate"
+    },
+    {
+      "question": "7. A pixel-wise multiplication is performed on two 8-bit images. If both corresponding pixels have the value 200, what is the unadjusted output value?",
+      "answers": {
+        "a": "400",
+        "b": "20000",
+        "c": "40000",
+        "d": "65025"
+      },
+      "correctAnswer": "c",
+      "explanations": {
+        "c": "Correct. The multiplication operation gives 200 × 200 = 40000.",
+        "a": "Incorrect. 400 is obtained by adding the two pixel values rather than multiplying them.",
+        "b": "Incorrect. Multiplying 200 by 200 gives a value larger than 20000.",
+        "d": "Incorrect. 65025 is the maximum possible product of two 255-valued 8-bit pixels, not the product of two 200-valued pixels."
+      },
+      "difficulty": "advanced"
+    },
+    {
+      "question": "8. A difference operation is used to compare a test image with a reference image. A large output value at a particular pixel indicates what?",
+      "answers": {
+        "a": "The corresponding pixels have similar values",
+        "b": "The corresponding pixels have different values",
+        "c": "The two images have different dimensions",
+        "d": "The corresponding pixels are both zero"
+      },
+      "correctAnswer": "b",
+      "explanations": {
+        "b": "Correct. A large absolute difference indicates that the corresponding pixel values in the two images differ significantly.",
+        "a": "Incorrect. Similar pixel values produce a small absolute difference.",
+        "c": "Incorrect. A difference value at a pixel represents the difference between pixel values, not the dimensions of the images.",
+        "d": "Incorrect. If both corresponding pixels are zero, their absolute difference is zero."
+      },
+      "difficulty": "advanced"
+    },
+    {
+      "question": "9. Why can auto-scaling be useful after an image arithmetic operation produces a wide range of pixel values?",
+      "answers": {
+        "a": "It maps the result to a suitable display range such as 0 to 255",
+        "b": "It guarantees that the original pixel values remain unchanged",
+        "c": "It removes the need for corresponding pixels in the input images",
+        "d": "It converts every arithmetic operation into subtraction"
+      },
+      "correctAnswer": "a",
+      "explanations": {
+        "a": "Correct. Auto-scaling maps the computed values to a specified range, such as 0 to 255, making the result suitable for representation as an 8-bit image.",
+        "b": "Incorrect. Auto-scaling changes the numerical representation of the result values by mapping them to a new range.",
+        "c": "Incorrect. Auto-scaling does not change the requirement for corresponding pixels to be operated on.",
+        "d": "Incorrect. Auto-scaling is a range-mapping process and does not change the arithmetic operation that produced the result."
+      },
+      "difficulty": "advanced"
+    }
+  ]
+}
