@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -259,13 +259,14 @@
         class="assignment-note"
         style="display: none"
       ></div>
-
       <div class="topbar">
         <div class="toolbar">
           <button id="button1" type="button">Select Image</button>
           <button id="button4" type="button">Reset</button>
           <button id="button2" type="button" class="primary">Run</button>
         </div>
+
+        <div id="status" class="status">OpenCV is being initialized…</div>
       </div>
 
       <div class="workspace">
@@ -334,8 +335,6 @@
           >
         </div>
       </div>
-
-      <div id="status" class="status">OpenCV is being initialized…</div>
     </div>
 
     <script type="text/javascript" src="../simulation/js/opencv.js"></script>
@@ -394,6 +393,8 @@
       function showAssignmentGuidance() {
         if (!assignmentMode) return;
         assignmentNote.style.display = "block";
+        assignmentNote.style.color = "#18191f";
+        assignmentNote.style.font = "bold 14px sans-serif";
         assignmentNote.textContent =
           "Assignment: Select a second operand, operation, and mapping, then click Run to match the target shown above this workspace.";
       }
