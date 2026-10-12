@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Image Arithmetic Assignment</title>
+    <link rel="icon" href="data:," />
     <style>
       :root {
         --bg: #f3f5f8;
@@ -122,6 +123,7 @@
 
       #Mosaic-img,
       #layer4Image,
+      #targetImage,
       #layer5outputImage {
         display: block;
         max-width: 100%;
@@ -235,8 +237,16 @@
         display: none;
       }
 
+      #TargetPanel {
+        display: none;
+      }
+
+      body.assignment-mode #TargetPanel {
+        display: block;
+      }
+
       body.assignment-mode .workspace {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(3, 1fr);
       }
 
       @media (max-width: 900px) {
@@ -285,6 +295,13 @@
               src="images/Layer-4.jpg"
               alt="Selected input"
             />
+          </div>
+        </div>
+
+        <div id="TargetPanel" class="panel">
+          <h3>Target Image</h3>
+          <div class="image-box">
+            <img id="targetImage" src="images/Layer-5.jpg" alt="Target" />
           </div>
         </div>
 
@@ -396,7 +413,7 @@
         assignmentNote.style.color = "#18191f";
         assignmentNote.style.font = "bold 14px sans-serif";
         assignmentNote.textContent =
-          "Assignment: Select a second operand, operation, and mapping, then click Run to match the target shown above this workspace.";
+          "Assignment: Select a second operand, operation, and mapping, then click Run to match the target image.";
       }
 
       function matchesOfficialAnswer(opt, fitting) {
@@ -427,6 +444,7 @@
             cv.cvtColor(targetMat, targetGray, cv.COLOR_RGBA2GRAY);
             safeDelete(app.assignmentTargetGray);
             app.assignmentTargetGray = targetGray.clone();
+            renderMatToImage(document.getElementById("targetImage"), targetMat);
             targetMat.delete();
             targetGray.delete();
           })
@@ -583,9 +601,13 @@
           button.type = "button";
           button.className = "thumb" + (index === 0 ? " selected" : "");
           const preview =
-            option.src === "__INPUT__" ? "images/Layer-4.jpg" : option.src;
+            option.src === "__INPUT__"
+              ? document.getElementById("layer4Image").src
+              : option.src;
           button.innerHTML =
-            '<img src="' +
+            '<img' +
+            (option.src === "__INPUT__" ? ' id="inputCopyThumb"' : "") +
+            ' src="' +
             preview +
             '" alt="' +
             option.name +
@@ -966,6 +988,10 @@
             safeDelete(app.croppedImage);
             app.croppedImage = mat;
             renderMatToImage(document.getElementById("layer4Image"), mat);
+            const inputCopyThumb = document.getElementById("inputCopyThumb");
+            if (inputCopyThumb) {
+              inputCopyThumb.src = document.getElementById("layer4Image").src;
+            }
           })
           .catch((err) => {
             console.error(err);
